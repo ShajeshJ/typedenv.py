@@ -21,7 +21,7 @@ class _DummyClass: ...
     ],
 )
 def test__get_usable_args__int_and_none(annotations: typing.Any):
-    assert typedenv.annotations.get_usable_args(annotations) == (int,)
+    assert typedenv.annotations.get_usable_type_args(annotations) == (int,)
 
 
 @pytest.mark.parametrize(
@@ -34,7 +34,7 @@ def test__get_usable_args__int_and_none(annotations: typing.Any):
     ],
 )
 def test__get_usable_args__only_none(annotations: typing.Any):
-    assert typedenv.annotations.get_usable_args(annotations) == ()
+    assert typedenv.annotations.get_usable_type_args(annotations) == ()
 
 
 @pytest.mark.parametrize(
@@ -51,7 +51,7 @@ def test__get_usable_args__only_none(annotations: typing.Any):
     ],
 )
 def test__get_usable_args__no_none(annotations: typing.Any, expected: typing.Any):
-    assert typedenv.annotations.get_usable_args(annotations) == expected
+    assert typedenv.annotations.get_usable_type_args(annotations) == expected
 
 
 @pytest.mark.parametrize(
@@ -63,7 +63,7 @@ def test__get_usable_args__no_none(annotations: typing.Any, expected: typing.Any
     ],
 )
 def test__get_usable_args__no_args(annotations: typing.Any):
-    assert typedenv.annotations.get_usable_args(annotations) == ()
+    assert typedenv.annotations.get_usable_type_args(annotations) == ()
 
 
 @pytest.mark.parametrize(
