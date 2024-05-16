@@ -39,7 +39,7 @@ def test__env_parser__multiple_keys(monkeypatch: pytest.MonkeyPatch):
 def test__env_parser__invalid_type(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MY_KEY", "string")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
 
         class _(typedenv.EnvParser):
             MY_KEY: list[str]
@@ -61,6 +61,24 @@ def test__env_parser__incompatible_types(
 
         class _(typedenv.EnvParser):
             MY_KEY: type_hint
+
+
+def test__env_parser__union_with_none(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_KEY", "string")
+
+    class MyEnv(typedenv.EnvParser):
+        MY_KEY: str | None
+
+    assert MyEnv.MY_KEY == "string"
+
+
+def test__env_parser__unsupported_union(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_KEY", "string")
+
+    with pytest.raises(TypeError):
+
+        class _(typedenv.EnvParser):
+            MY_KEY: str | int
 
 
 @pytest.mark.parametrize("input_str", ["true", "1", "TRUE", "True"])
