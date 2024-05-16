@@ -14,10 +14,10 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-      - name: Setup Test Environment for Python ${{ matrix.python-version }}
+      - name: Setup Test Environment for Python ${{ inputs.python-version }}
         uses: ./.github/actions/setup-python
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ inputs.python-version }}
           poetry-groups: "test"
       - name: Test with pytest
         run: poetry run pytest tests
