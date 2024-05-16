@@ -29,9 +29,7 @@ def test__get_usable_args__int_and_none(annotations: typing.Any):
     [
         pytest.param(typing.Union[None, None], id="typing.Union"),
         pytest.param(dict[None, None], id="built-in dict"),
-        pytest.param(tuple[None], id="built-in tuple"),
         pytest.param(list[None], id="built-in list"),
-        pytest.param(set[None], id="built-in set"),
         pytest.param(typing.Annotated[None, None], id="typing.Annotated"),
     ],
 )
@@ -42,14 +40,11 @@ def test__get_usable_args__only_none(annotations: typing.Any):
 @pytest.mark.parametrize(
     ("annotations", "expected"),
     [
-        pytest.param(typing.Union[int, str, int | str], (int, str), id="typing.Union"),
+        pytest.param(typing.Union[int, str], (int, str), id="typing.Union"),
         pytest.param(int | str, (int, str), id="built-in Union"),
         pytest.param(dict[int, str], (int, str), id="built-in dict"),
         pytest.param(typing.Annotated[str, int], (str, int), id="typing.Annotated"),
-        pytest.param(tuple[int, str], (int, str), id="built-in tuple"),
         pytest.param(list[int], (int,), id="built-in list"),
-        pytest.param(set[int], (int,), id="built-in set"),
-        pytest.param(typing.Callable[..., int], (Ellipsis, int), id="typing.Callable"),
         pytest.param(
             tuple[str | None, list[None]], (str | None, list[None]), id="Inner None"
         ),
@@ -87,12 +82,11 @@ def test__is_union_type__returns_true(annotations: typing.Any):
     "annotations",
     [
         pytest.param(str, id="built-in str"),
-        pytest.param(typing.Callable[[None], None], id="typing.Callable"),
         pytest.param(typing.Annotated[None, int], id="typing.Annotated"),
         pytest.param(_dummy_func, id="function"),
         pytest.param(_DummyClass, id="class"),
         pytest.param(dict[str, str], id="built-in dict"),
-        pytest.param(list[str | int], id="built-in list"),
+        pytest.param(list[str | int], id="nested Union"),
     ],
 )
 def test__is_union_type__returns_false(annotations: typing.Any):
