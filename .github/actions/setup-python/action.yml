@@ -1,0 +1,30 @@
+name: "Setup Python"
+description: "Configures the Python environment and installs dependencies via Poetry"
+inputs:
+  python-version:
+    description: "The version of Python to use"
+    required: false
+    default: "~3.10"
+  poetry-groups:
+    description: "Additional poetry groups to install with"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Poetry
+      shell: bash
+      run: pipx install poetry
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: poetry
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.poetry-groups }}" ]; then
+          poetry install --with ${{ inputs.poetry-groups }}
+        else
+          poetry install
+        fi
