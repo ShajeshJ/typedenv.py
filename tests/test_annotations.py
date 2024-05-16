@@ -74,26 +74,26 @@ def test__get_usable_args__no_args(annotations: typing.Any):
 @pytest.mark.parametrize(
     "annotations",
     [
-        typing.Optional[int],
-        typing.Union[int, list[str], None],
-        None | int,
+        pytest.param(typing.Optional[int], id="typing.Optional"),
+        pytest.param(typing.Union[int, list[str], None], id="typing.Union"),
+        pytest.param(None | int, id="built-in Union"),
     ],
 )
-def test__is_union_type__true_cases(annotations: typing.Any):
+def test__is_union_type__returns_true(annotations: typing.Any):
     assert typedenv.annotations.is_union_type(annotations) == True
 
 
 @pytest.mark.parametrize(
     "annotations",
     [
-        str,
-        typing.Callable[[None], None],
-        typing.Annotated[None, int],
-        _dummy_func,
-        _DummyClass,
-        dict[str, str],
-        list[str | int],
+        pytest.param(str, id="built-in str"),
+        pytest.param(typing.Callable[[None], None], id="typing.Callable"),
+        pytest.param(typing.Annotated[None, int], id="typing.Annotated"),
+        pytest.param(_dummy_func, id="function"),
+        pytest.param(_DummyClass, id="class"),
+        pytest.param(dict[str, str], id="built-in dict"),
+        pytest.param(list[str | int], id="built-in list"),
     ],
 )
-def test__is_union_type__false_cases(annotations: typing.Any):
+def test__is_union_type__returns_false(annotations: typing.Any):
     assert typedenv.annotations.is_union_type(annotations) == False
