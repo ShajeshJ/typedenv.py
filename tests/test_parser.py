@@ -81,6 +81,13 @@ def test__env_parser__unsupported_union(monkeypatch: pytest.MonkeyPatch):
             MY_KEY: str | int
 
 
+def test__env_parser__missing_key_defaults_none():
+    class MyEnv(typedenv.EnvParser):
+        MY_KEY: str | None
+
+    assert MyEnv.MY_KEY is None
+
+
 @pytest.mark.parametrize("input_str", ["true", "1", "TRUE", "True"])
 def test__cast_to_bool__true(input_str: str):
     assert typedenv.parse.cast_to_bool(input_str) == True

@@ -4,6 +4,9 @@ import typing
 from typedenv.annotations import parse_unioned_with_none
 
 
+_MISSING = object()
+
+
 class EnvParser:
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -14,18 +17,23 @@ class EnvParser:
         for env_name, cast_type in typing.get_type_hints(
             cls, include_extras=True
         ).items():
+            default = _MISSING
+
             unioned_type = parse_unioned_with_none(cast_type)
             if unioned_type is not None:
+                default = None
                 cast_type = unioned_type
 
             if cast_type not in (str, int, float, bool):
                 raise TypeError(f"Unsupported type: {cast_type}")
 
-            value = os.getenv(env_name)
-            if value is None:
+            value = os.getenv(env_name, default)
+            if value is _MISSING:
                 raise ValueError(f"Missing environment variable: {env_name}")
 
-            if cast_type is bool:
+            if value is None:
+                setattr(cls, env_name, value)
+            elif cast_type is bool:
                 setattr(cls, env_name, cast_to_bool(value))
             else:
                 setattr(cls, env_name, cast_type(value))
