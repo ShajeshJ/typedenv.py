@@ -1,7 +1,7 @@
 import os
 import typing
 
-from typedenv.annotations import get_usable_type_args, is_union_type
+from typedenv.annotations import parse_unioned_with_none
 
 
 class EnvParser:
@@ -14,9 +14,9 @@ class EnvParser:
         for env_name, cast_type in typing.get_type_hints(
             cls, include_extras=True
         ).items():
-            if is_union_type(cast_type):
-                cast_type = get_usable_type_args(cast_type)
-                cast_type = cast_type[0] if len(cast_type) == 1 else cast_type
+            unioned_type = parse_unioned_with_none(cast_type)
+            if unioned_type is not None:
+                cast_type = unioned_type
 
             if cast_type not in (str, int, float, bool):
                 raise TypeError(f"Unsupported type: {cast_type}")
