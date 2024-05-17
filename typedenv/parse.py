@@ -4,14 +4,6 @@ import typing
 from typedenv.annotations import get_usable_type_args, is_union_type
 
 
-def cast_to_bool(value: str) -> bool:
-    if value.lower() in ("true", "1"):
-        return True
-    if value.lower() in ("false", "0"):
-        return False
-    raise ValueError(f"Unsupported boolean value: {value}")
-
-
 class EnvParser:
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -37,3 +29,11 @@ class EnvParser:
                 setattr(cls, env_name, cast_to_bool(value))
             else:
                 setattr(cls, env_name, cast_type(value))
+
+
+def cast_to_bool(value: str) -> bool:
+    if value.lower() in ("true", "1"):
+        return True
+    if value.lower() in ("false", "0"):
+        return False
+    raise ValueError(f"Unsupported boolean value: {value}")
