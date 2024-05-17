@@ -24,10 +24,3 @@ def parse_unioned_with_none(t: typing.Any) -> typing.Any:
             return x
         case _:
             return None
-
-
-def get_usable_type_args(t: typing.Any) -> tuple[typing.Any, ...]:
-    """Get all non-None arguments for a type annotation.
-    An empty tuple is returned for type annotations that don't take arguments.
-    """
-    return tuple(arg for arg in typing.get_args(t) if arg not in (None, type(None)))

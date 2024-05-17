@@ -13,63 +13,6 @@ class _DummyClass: ...
     "annotations",
     [
         pytest.param(typing.Optional[int], id="typing.Optional"),
-        pytest.param(typing.Union[None, int, int | None], id="typing.Union"),
-        pytest.param(int | None, id="built-in Union"),
-        pytest.param(dict[int, None], id="built-in dict"),
-        pytest.param(typing.Annotated[None, int], id="typing.Annotated"),
-        pytest.param(tuple[None, int], id="built-in tuple"),
-    ],
-)
-def test__get_usable_args__int_and_none(annotations: typing.Any):
-    assert typedenv.annotations.get_usable_type_args(annotations) == (int,)
-
-
-@pytest.mark.parametrize(
-    "annotations",
-    [
-        pytest.param(typing.Union[None, None], id="typing.Union"),
-        pytest.param(dict[None, None], id="built-in dict"),
-        pytest.param(list[None], id="built-in list"),
-        pytest.param(typing.Annotated[None, None], id="typing.Annotated"),
-    ],
-)
-def test__get_usable_args__only_none(annotations: typing.Any):
-    assert typedenv.annotations.get_usable_type_args(annotations) == ()
-
-
-@pytest.mark.parametrize(
-    ("annotations", "expected"),
-    [
-        pytest.param(typing.Union[int, str], (int, str), id="typing.Union"),
-        pytest.param(int | str, (int, str), id="built-in Union"),
-        pytest.param(dict[int, str], (int, str), id="built-in dict"),
-        pytest.param(typing.Annotated[str, int], (str, int), id="typing.Annotated"),
-        pytest.param(list[int], (int,), id="built-in list"),
-        pytest.param(
-            tuple[str | None, list[None]], (str | None, list[None]), id="Inner None"
-        ),
-    ],
-)
-def test__get_usable_args__no_none(annotations: typing.Any, expected: typing.Any):
-    assert typedenv.annotations.get_usable_type_args(annotations) == expected
-
-
-@pytest.mark.parametrize(
-    "annotations",
-    [
-        pytest.param(str, id="built-in str"),
-        pytest.param(_dummy_func, id="function"),
-        pytest.param(_DummyClass, id="class"),
-    ],
-)
-def test__get_usable_args__no_args(annotations: typing.Any):
-    assert typedenv.annotations.get_usable_type_args(annotations) == ()
-
-
-@pytest.mark.parametrize(
-    "annotations",
-    [
-        pytest.param(typing.Optional[int], id="typing.Optional"),
         pytest.param(typing.Union[int, list[str], None], id="typing.Union"),
         pytest.param(None | int, id="built-in Union"),
     ],
