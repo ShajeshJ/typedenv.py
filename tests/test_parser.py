@@ -5,21 +5,21 @@ import typing
 
 
 @pytest.mark.parametrize(
-    ["value", "type_hint"],
+    "value",
     [
-        pytest.param("string", str, id="string"),
-        pytest.param(1, int, id="int"),
-        pytest.param(1.0, float, id="float"),
-        pytest.param(False, bool, id="bool"),
+        pytest.param("string", id="string"),
+        pytest.param(1, id="int"),
+        pytest.param(1.0, id="float"),
+        pytest.param(False, id="bool"),
     ],
 )
 def test__env_parser__primitive_types(
-    value: typing.Any, type_hint: typing.Any, monkeypatch: pytest.MonkeyPatch
+    value: typing.Any, monkeypatch: pytest.MonkeyPatch
 ):
     monkeypatch.setenv("MY_KEY", str(value))
 
     class MyEnv(typedenv.EnvParser):
-        MY_KEY: type_hint
+        MY_KEY: value.__class__
 
     assert MyEnv.MY_KEY == value
 
