@@ -88,6 +88,32 @@ def test__env_parser__missing_key_defaults_none():
     assert MyEnv.MY_KEY is None
 
 
+@pytest.mark.parametrize(
+    ["type_hint", "default"],
+    [
+        pytest.param(int, 1, id="int"),
+        pytest.param(float, 1.0, id="float"),
+        pytest.param(bool, False, id="bool"),
+        pytest.param(str, "string", id="str"),
+        pytest.param(int | None, 1, id="union with None"),
+    ],
+)
+def test__env_parser__fallback_to_default(type_hint: typing.Any, default: typing.Any):
+    class MyEnv(typedenv.EnvParser):
+        MY_KEY: type_hint = default
+
+    assert MyEnv.MY_KEY == default
+
+
+def test__env_parser__ignore_default(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_KEY", "12")
+
+    class MyEnv(typedenv.EnvParser):
+        MY_KEY: int = 1
+
+    assert MyEnv.MY_KEY == 12
+
+
 @pytest.mark.parametrize("input_str", ["true", "1", "TRUE", "True"])
 def test__cast_to_bool__true(input_str: str):
     assert typedenv.parse.cast_to_bool(input_str) == True

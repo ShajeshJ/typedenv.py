@@ -27,11 +27,15 @@ class EnvParser:
             if cast_type not in (str, int, float, bool):
                 raise TypeError(f"Unsupported type: {cast_type}")
 
+            default = getattr(cls, env_name, default)
+
             value = os.getenv(env_name, default)
             if value is _MISSING:
                 raise ValueError(f"Missing environment variable: {env_name}")
 
-            if value is None:
+            if isinstance(value, cast_type) or (
+                value is None and unioned_type is not None
+            ):
                 setattr(cls, env_name, value)
             elif cast_type is bool:
                 setattr(cls, env_name, cast_to_bool(value))
