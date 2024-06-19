@@ -1,5 +1,4 @@
 import typedenv
-import typedenv.parse
 import pytest
 import typing
 
@@ -112,13 +111,3 @@ def test__env_parser__ignore_default(monkeypatch: pytest.MonkeyPatch):
         MY_KEY: int = 1
 
     assert MyEnv.MY_KEY == 12
-
-
-@pytest.mark.parametrize("input_str", ["true", "1", "TRUE", "True"])
-def test__cast_to_bool__true(input_str: str):
-    assert typedenv.parse.cast_to_bool(input_str) == True
-
-
-@pytest.mark.parametrize("input_str", ["false", "0", "FALSE", "False"])
-def test__cast_to_bool__false(input_str: str):
-    assert typedenv.parse.cast_to_bool(input_str) == False

@@ -1,1 +1,1 @@
-from .parse import EnvParser
+from .parser import EnvParser
