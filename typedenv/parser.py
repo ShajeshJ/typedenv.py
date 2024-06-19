@@ -3,13 +3,20 @@ import typing
 
 from typedenv._internals import _MISSING
 from typedenv.annotations import parse_unioned_with_none
-from typedenv.converters import can_convert, cast_to_bool, get_converter, set_converter
+from typedenv.converters import (
+    can_convert,
+    cast_to_bool,
+    clear_converters,
+    get_converter,
+    set_converter,
+)
 
 
 class EnvParser:
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
+        clear_converters()
         set_converter(str, str)
         set_converter(int, int)
         set_converter(float, float)

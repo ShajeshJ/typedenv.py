@@ -24,7 +24,13 @@ def cast_to_bool(value: str) -> bool:
     raise ValueError(f"Unsupported boolean value: {value}")
 
 
+# TODO: Need a more robust approach than using a global variable
 __converters = ConverterDict()
+
+
+def clear_converters() -> None:
+    global __converters
+    __converters.clear()
 
 
 def get_converter(type_: type[T]) -> Converter[T]:
