@@ -29,6 +29,9 @@ class EnvParser:
         for env_name, cast_type in typing.get_type_hints(
             cls, include_extras=True
         ).items():
+            if not env_name.isupper():
+                continue
+
             default: typing.Literal[_MISSING] | str | typing.Any | None = _MISSING
 
             unioned_type = parse_unioned_with_none(cast_type)

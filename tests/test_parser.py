@@ -111,3 +111,12 @@ def test__env_parser__ignore_default(monkeypatch: pytest.MonkeyPatch):
         MY_KEY: int = 1
 
     assert MyEnv.MY_KEY == 12
+
+
+def test__env_parser__ignore_lower_case(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("my_key", "18")
+
+    class MyEnv(typedenv.EnvParser):
+        my_key: int = 12
+
+    assert MyEnv.my_key == 12
