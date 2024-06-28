@@ -3,24 +3,21 @@ import typing
 
 from typedenv._internals import _MISSING
 from typedenv.annotations import parse_unioned_with_none
-from typedenv.converters import (
-    can_convert,
-    cast_to_bool,
-    clear_converters,
-    get_converter,
-    set_converter,
-)
+from typedenv.converters import ConverterDict, cast_to_bool
 
 
 class EnvParser:
+    __converters: ConverterDict
+
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
-        clear_converters()
-        set_converter(str, str)
-        set_converter(int, int)
-        set_converter(float, float)
-        set_converter(bool, cast_to_bool)
+        cls.__converters = ConverterDict()
+
+        cls.__converters[str] = str
+        cls.__converters[int] = int
+        cls.__converters[float] = float
+        cls.__converters[bool] = cast_to_bool
 
         cls.__load_env__()
 
@@ -39,7 +36,7 @@ class EnvParser:
                 default = None
                 cast_type = unioned_type
 
-            if not can_convert(cast_type):
+            if cast_type not in cls.__converters:
                 raise TypeError(f"Unsupported type: {cast_type}")
 
             default = getattr(cls, env_name, default)
@@ -60,7 +57,7 @@ class EnvParser:
                 continue
 
             if isinstance(value, str):
-                setattr(cls, env_name, get_converter(cast_type)(value))
+                setattr(cls, env_name, cls.__converters[cast_type](value))
                 continue
 
             raise RuntimeError("Unreachable code was reached")
