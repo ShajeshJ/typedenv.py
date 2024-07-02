@@ -44,19 +44,17 @@ def test__is_union_type__returns_false(annotations: typing.Any):
         pytest.param(list[str | None], id="nested Union"),
     ],
 )
-def test__parse_unioned_with_none__non_union_types(annotations: typing.Any):
-    assert typedenv.annotations.parse_unioned_with_none(annotations) is None
+def test__get_unioned_with_none__non_union_types(annotations: typing.Any):
+    assert typedenv.annotations.get_unioned_with_none(annotations) is None
 
 
-def test__parse_union_with_none__only_none():
-    assert (
-        typedenv.annotations.parse_unioned_with_none(typing.Union[None, None]) is None
-    )
+def test__get_unioned_with_none__only_none():
+    assert typedenv.annotations.get_unioned_with_none(typing.Union[None, None]) is None
 
 
 @pytest.mark.parametrize("annotations", [int | list[str], typing.Union[int, str]])
-def test__parse_unioned_with_none__union_without_none(annotations: typing.Any):
-    assert typedenv.annotations.parse_unioned_with_none(annotations) is None
+def test__get_unioned_with_none__union_without_none(annotations: typing.Any):
+    assert typedenv.annotations.get_unioned_with_none(annotations) is None
 
 
 @pytest.mark.parametrize(
@@ -67,10 +65,10 @@ def test__parse_unioned_with_none__union_without_none(annotations: typing.Any):
         typing.Optional[str | int],
     ],
 )
-def test__parse_unioned_with_none__multiple_types_with_none(
+def test__get_unioned_with_none__multiple_types_with_none(
     annotations: typing.Any,
 ):
-    assert typedenv.annotations.parse_unioned_with_none(annotations) is None
+    assert typedenv.annotations.get_unioned_with_none(annotations) is None
 
 
 @pytest.mark.parametrize(
@@ -82,5 +80,5 @@ def test__parse_unioned_with_none__multiple_types_with_none(
         pytest.param(typing.Union[None | str, str], id="redundant Union"),
     ],
 )
-def test__parse_unioned_with_none__one_type_with_none(annotations: typing.Any):
-    assert typedenv.annotations.parse_unioned_with_none(annotations) == str
+def test__get_unioned_with_none__one_type_with_none(annotations: typing.Any):
+    assert typedenv.annotations.get_unioned_with_none(annotations) == str

@@ -2,11 +2,11 @@ import os
 import typing
 
 from typedenv._internals import _MISSING
-from typedenv.annotations import parse_unioned_with_none
+from typedenv.annotations import get_unioned_with_none
 from typedenv.converters import ConverterDict, cast_to_bool
 
 
-class EnvParser:
+class EnvLoader:
     __converters: ConverterDict
 
     def __init_subclass__(cls, **kwargs) -> None:
@@ -31,7 +31,7 @@ class EnvParser:
 
             default: typing.Literal[_MISSING] | str | typing.Any | None = _MISSING
 
-            unioned_type = parse_unioned_with_none(cast_type)
+            unioned_type = get_unioned_with_none(cast_type)
             if is_nullable := unioned_type is not None:
                 default = None
                 cast_type = unioned_type

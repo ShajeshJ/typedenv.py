@@ -12,7 +12,7 @@ Given you have the environment variables `LOG_LEVEL=INFO` and `POOL_SIZE=100` se
 
 import typedenv
 
-class Env(typedenv.EnvParser):
+class Env(typedenv.EnvLoader):
     LOG_LEVEL: str
     POOL_SIZE: int
 
