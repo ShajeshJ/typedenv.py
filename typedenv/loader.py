@@ -6,25 +6,33 @@ from typedenv.annotations import get_unioned_with_none
 from typedenv.converters import ConverterDict, cast_to_bool
 
 
+_SINGLETONS: dict[type, typing.Any] = {}
+
+
 class EnvLoader:
     __converters: ConverterDict
 
-    def __init_subclass__(cls, **kwargs) -> None:
-        super().__init_subclass__(**kwargs)
+    def __new__(cls, *args, **kwargs):
+        if cls in _SINGLETONS:
+            return _SINGLETONS[cls]
 
-        cls.__converters = ConverterDict()
+        instance = super(EnvLoader, cls).__new__(cls, *args, **kwargs)
 
-        cls.__converters[str] = str
-        cls.__converters[int] = int
-        cls.__converters[float] = float
-        cls.__converters[bool] = cast_to_bool
+        instance.__converters = ConverterDict()
 
-        cls.__load_env__()
+        instance.__converters[str] = str
+        instance.__converters[int] = int
+        instance.__converters[float] = float
+        instance.__converters[bool] = cast_to_bool
 
-    @classmethod
-    def __load_env__(cls) -> None:
+        instance.__load_env__()
+
+        _SINGLETONS[cls] = instance
+        return instance
+
+    def __load_env__(self) -> None:
         for env_name, cast_type in typing.get_type_hints(
-            cls, include_extras=True
+            self, include_extras=True
         ).items():
             if not env_name.isupper():
                 continue
@@ -36,10 +44,10 @@ class EnvLoader:
                 default = None
                 cast_type = unioned_type
 
-            if cast_type not in cls.__converters:
+            if cast_type not in self.__converters:
                 raise TypeError(f"Unsupported type: {cast_type}")
 
-            default = getattr(cls, env_name, default)
+            default = getattr(self, env_name, default)
             value = os.getenv(env_name, default)
 
             if value is _MISSING:
@@ -49,15 +57,15 @@ class EnvLoader:
                 if not is_nullable:
                     raise ValueError(f"Cannot set {env_name} to None")
 
-                setattr(cls, env_name, None)
+                setattr(self, env_name, None)
                 continue
 
             if isinstance(value, cast_type):
-                setattr(cls, env_name, value)
+                setattr(self, env_name, value)
                 continue
 
             if isinstance(value, str):
-                setattr(cls, env_name, cls.__converters[cast_type](value))
+                setattr(self, env_name, self.__converters[cast_type](value))
                 continue
 
             raise RuntimeError("Unreachable code was reached")

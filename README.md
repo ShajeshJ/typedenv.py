@@ -12,10 +12,11 @@ Given you have the environment variables `LOG_LEVEL=INFO` and `POOL_SIZE=100` se
 
 import typedenv
 
-class Env(typedenv.EnvLoader):
+class EnvConfig(typedenv.EnvLoader):
     LOG_LEVEL: str
     POOL_SIZE: int
 
+Env = EnvConfig()
 assert Env.LOG_LEVEL == "INFO"
 assert Env.POOL_SIZE == 100
 ```
