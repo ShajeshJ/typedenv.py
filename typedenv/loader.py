@@ -6,13 +6,16 @@ from typedenv.annotations import get_unioned_with_none
 from typedenv.converters import ConverterDict, cast_to_bool
 
 
+_T = typing.TypeVar("_T", bound="EnvLoader")
 _SINGLETONS: dict[type, typing.Any] = {}
 
 
 class EnvLoader:
     __converters: ConverterDict
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls: type[_T], *args, **kwargs) -> _T:
+        global _SINGLETONS
+
         if cls in _SINGLETONS:
             return _SINGLETONS[cls]
 
@@ -32,7 +35,7 @@ class EnvLoader:
 
     def __load_env__(self) -> None:
         for env_name, cast_type in typing.get_type_hints(
-            self, include_extras=True
+            type(self), include_extras=True
         ).items():
             if not env_name.isupper():
                 continue

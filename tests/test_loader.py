@@ -125,3 +125,55 @@ def test__env_loader__ignore_lower_case(monkeypatch: pytest.MonkeyPatch):
         my_key: int = 12
 
     assert MyEnv().my_key == 12
+
+
+def test__env_loader__creates_singleton(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_STR", "starting string")
+
+    class MyEnv(typedenv.EnvLoader):
+        MY_STR: str
+
+    env1 = MyEnv()
+    monkeypatch.setenv("MY_STR", "env keys should not reload values for the same class")
+    env2 = MyEnv()
+
+    assert env1 is env2
+    assert env2.MY_STR == "starting string"
+
+
+def test__env_loader__multiple_configs(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_STR", "a string")
+    monkeypatch.setenv("MY_INT", "14")
+
+    class Foo(typedenv.EnvLoader):
+        MY_STR: str
+
+    class Bar(typedenv.EnvLoader):
+        MY_INT: int
+
+    foo = Foo()
+    bar = Bar()
+
+    assert isinstance(foo, Foo)
+    assert isinstance(bar, Bar)
+    assert foo.MY_STR == "a string"
+    assert bar.MY_INT == 14
+
+
+def test__env_loader__with_inheritance(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("BASE_STR", "only the base class shouold see this value")
+    monkeypatch.setenv("CHILD_STR", "child-only value")
+
+    class Base(typedenv.EnvLoader):
+        BASE_STR: str
+
+    class Child(Base):
+        CHILD_STR: str
+
+    base = Base()
+    monkeypatch.setenv("BASE_STR", "updated base value for child")
+    child = Child()
+
+    assert base.BASE_STR == "only the base class shouold see this value"
+    assert child.BASE_STR == "updated base value for child"
+    assert child.CHILD_STR == "child-only value"
