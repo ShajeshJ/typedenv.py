@@ -11,7 +11,21 @@ _SINGLETONS: dict[type, typing.Any] = {}
 
 
 class EnvLoader:
-    __converters: ConverterDict
+    __frozen: typing.ClassVar[bool]
+    __env_keys: typing.ClassVar[set[str]]
+    __converters: typing.ClassVar[ConverterDict]
+
+    def __init_subclass__(cls, frozen: bool = True, **kwargs) -> None:
+        cls.__frozen = frozen
+        cls.__env_keys = set()
+        cls.__converters = ConverterDict()
+
+        cls.__converters[str] = str
+        cls.__converters[int] = int
+        cls.__converters[float] = float
+        cls.__converters[bool] = cast_to_bool
+
+        return super().__init_subclass__(**kwargs)
 
     def __new__(cls: type[_T], *args, **kwargs) -> _T:
         global _SINGLETONS
@@ -19,18 +33,10 @@ class EnvLoader:
         if cls in _SINGLETONS:
             return _SINGLETONS[cls]
 
-        instance = super(EnvLoader, cls).__new__(cls, *args, **kwargs)
-
-        instance.__converters = ConverterDict()
-
-        instance.__converters[str] = str
-        instance.__converters[int] = int
-        instance.__converters[float] = float
-        instance.__converters[bool] = cast_to_bool
-
+        instance = super().__new__(cls, *args, **kwargs)
         instance.__load_env__()
-
         _SINGLETONS[cls] = instance
+
         return instance
 
     def __load_env__(self) -> None:
@@ -55,20 +61,21 @@ class EnvLoader:
 
             if value is _MISSING:
                 raise ValueError(f"Missing environment variable: {env_name}")
-
-            if value is None:
+            elif isinstance(value, str):
+                value = self.__converters[cast_type](value)
+            elif value is None:
                 if not is_nullable:
                     raise ValueError(f"Cannot set {env_name} to None")
+                else:
+                    pass  # no-op; env can be set to None
+            elif not isinstance(value, cast_type):
+                raise ValueError(f"Could not coerce {env_name} to {cast_type}")
 
-                setattr(self, env_name, None)
-                continue
+            setattr(self, env_name, value)
+            self.__env_keys.add(env_name)
 
-            if isinstance(value, cast_type):
-                setattr(self, env_name, value)
-                continue
+    def __setattr__(self, name: str, value: typing.Any) -> None:
+        if self.__frozen and name in self.__env_keys:
+            raise AttributeError(f"{name} is frozen and cannot be modified")
 
-            if isinstance(value, str):
-                setattr(self, env_name, self.__converters[cast_type](value))
-                continue
-
-            raise RuntimeError("Unreachable code was reached")
+        return super().__setattr__(name, value)

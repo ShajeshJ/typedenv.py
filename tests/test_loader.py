@@ -177,3 +177,91 @@ def test__env_loader__with_inheritance(monkeypatch: pytest.MonkeyPatch):
     assert base.BASE_STR == "only the base class shouold see this value"
     assert child.BASE_STR == "updated base value for child"
     assert child.CHILD_STR == "child-only value"
+
+
+def test__env_loader__mismatched_types():
+    class MyEnv(typedenv.EnvLoader):
+        MY_KEY: str = 12  # type: ignore
+
+    with pytest.raises(ValueError):
+        MyEnv()
+
+
+def test__env_loader__frozen(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_KEY", "env value")
+
+    class MyEnv(typedenv.EnvLoader):
+        MY_KEY: str
+
+    with pytest.raises(AttributeError):
+        MyEnv().MY_KEY = "new value"
+
+
+def test__env_loader__mutable(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_KEY", "env value")
+
+    class MyEnv(typedenv.EnvLoader, frozen=False):
+        MY_KEY: str
+
+    env = MyEnv()
+    env.MY_KEY = "new value"
+    assert env.MY_KEY == "new value"
+
+
+def test__env_loader__regular_attrs_mutable():
+    class MyEnv(typedenv.EnvLoader):
+        regular_attr: str
+
+    env = MyEnv()
+    env.regular_attr = "new value"
+    assert env.regular_attr == "new value"
+
+
+def test__env_loader__inheritance__mutable_parent(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("BASE_KEY", "old base value")
+    monkeypatch.setenv("CHILD_KEY", "old child value")
+
+    class Base(typedenv.EnvLoader, frozen=False):
+        BASE_KEY: str
+
+    class Child(Base):
+        CHILD_KEY: str
+
+    base = Base()
+    child = Child()
+
+    base.BASE_KEY = "new base value"
+
+    with pytest.raises(AttributeError):
+        child.BASE_KEY = "new child value"
+
+    with pytest.raises(AttributeError):
+        child.CHILD_KEY = "new child value"
+
+    assert base.BASE_KEY == "new base value"
+    assert child.BASE_KEY == "old base value"
+    assert child.CHILD_KEY == "old child value"
+
+
+def test__env_loader__inheritance__mutable_child(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("BASE_KEY", "old base value")
+    monkeypatch.setenv("CHILD_KEY", "old child value")
+
+    class Base(typedenv.EnvLoader):
+        BASE_KEY: str
+
+    class Child(Base, frozen=False):
+        CHILD_KEY: str
+
+    base = Base()
+    child = Child()
+
+    with pytest.raises(AttributeError):
+        base.BASE_KEY = "new base value"
+
+    child.BASE_KEY = "new base value"
+    child.CHILD_KEY = "new child value"
+
+    assert base.BASE_KEY == "old base value"
+    assert child.BASE_KEY == "new base value"
+    assert child.CHILD_KEY == "new child value"
