@@ -5,11 +5,9 @@
 # typedenv
 Load environment variables with strict types
 
-## Quickstart
+## 🚀 Quickstart
 Given you have the environment variables `LOG_LEVEL=INFO` and `POOL_SIZE=100` set:
 ```python
-# app.py
-
 import typedenv
 
 class EnvConfig(typedenv.EnvLoader):
