@@ -160,6 +160,31 @@ def test__env_loader__multiple_configs(monkeypatch: pytest.MonkeyPatch):
     assert bar.MY_INT == 14
 
 
+def test__env_loader__override_type():
+    class Base(typedenv.EnvLoader):
+        SOME_KEY: str | None
+
+    class Child(Base):
+        SOME_KEY: str
+
+    assert Base().SOME_KEY is None
+    with pytest.raises(ValueError):
+        Child()
+
+
+def test__env_loader__override_default():
+    class Base(typedenv.EnvLoader):
+        SOME_KEY: int
+
+    class Child(Base):
+        SOME_KEY = 13
+
+    with pytest.raises(ValueError):
+        Base()
+
+    assert Child().SOME_KEY == 13
+
+
 def test__env_loader__with_inheritance(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("BASE_STR", "only the base class shouold see this value")
     monkeypatch.setenv("CHILD_STR", "child-only value")
