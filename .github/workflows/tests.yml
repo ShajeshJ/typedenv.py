@@ -15,9 +15,16 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Setup Test Environment for Python ${{ inputs.python-version }}
+        id: setup-python
         uses: ./.github/actions/setup-python
         with:
           python-version: ${{ inputs.python-version }}
-          poetry-groups: "test"
+          poetry-args: "--with test"
+      - name: Show Test Summary
+        run: |
+          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "Python | ${{ steps.setup-python.outputs.python-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "Loaded from Cache | ${{ steps.setup-python.outputs.cache-hit }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
       - name: Test with pytest
-        run: poetry run pytest tests
+        run: poetry run pytest --no-header --tb=no >> $GITHUB_STEP_SUMMARY

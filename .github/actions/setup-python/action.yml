@@ -4,10 +4,17 @@ inputs:
   python-version:
     description: "The version of Python to use"
     required: false
-    default: "3.10"
-  poetry-groups:
-    description: "Additional poetry groups to install with"
+    default: "3.12"
+  poetry-args:
+    description: "Additional arguments to pass to the poetry install command"
     required: false
+outputs:
+  python-version:
+    description: "The version of Python that was set up"
+    value: ${{ steps.setup-python.outputs.python-version }}
+  cache-hit:
+    description: "Whether the Python version was found in the cache"
+    value: ${{ steps.setup-python.outputs.cache-hit }}
 
 runs:
   using: "composite"
@@ -15,16 +22,18 @@ runs:
     - name: Install Poetry
       shell: bash
       run: pipx install poetry
+    - name: Create cache file for poetry args
+      shell: bash
+      run: echo "${{ inputs.poetry-args }}" > poetry-args.txt
     - name: Set up Python ${{ inputs.python-version }}
+      id: setup-python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
         cache: poetry
+        cache-dependency-path: |
+          **/poetry.lock
+          poetry-args.txt
     - name: Install dependencies
       shell: bash
-      run: |
-        if [ -n "${{ inputs.poetry-groups }}" ]; then
-          poetry install --with ${{ inputs.poetry-groups }}
-        else
-          poetry install
-        fi
+      run: poetry install ${{ inputs.poetry-args }}
