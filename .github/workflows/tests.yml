@@ -23,8 +23,8 @@ jobs:
       - name: Show Test Summary
         run: |
           echo "### Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "Python | ${{ steps.setup-python.outputs.python-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "Loaded from Cache | ${{ steps.setup-python.outputs.cache-hit }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Python | ${{ steps.setup-python.outputs.python-version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Env from Cache | ${{ steps.setup-python.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
           echo "### Test Results" >> $GITHUB_STEP_SUMMARY
       - name: Test with pytest
-        run: poetry run pytest --no-header --tb=no >> $GITHUB_STEP_SUMMARY
+        run: poetry run pytest --no-header --tb=no --color=yes >> $GITHUB_STEP_SUMMARY
