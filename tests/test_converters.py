@@ -1,4 +1,3 @@
-import typing
 import pytest
 
 import typedenv.converters

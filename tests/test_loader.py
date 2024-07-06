@@ -1,7 +1,9 @@
 import json
-import typedenv
-import pytest
 import typing
+
+import pytest
+
+import typedenv
 
 
 @pytest.mark.parametrize(
@@ -205,14 +207,6 @@ def test__env_loader__with_inheritance(monkeypatch: pytest.MonkeyPatch):
     assert child.CHILD_STR == "child-only value"
 
 
-def test__env_loader__mismatched_types():
-    class MyEnv(typedenv.EnvLoader):
-        MY_KEY: str = 12  # type: ignore
-
-    with pytest.raises(ValueError):
-        MyEnv()
-
-
 def test__env_loader__frozen(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MY_KEY", "env value")
 
@@ -307,19 +301,25 @@ def test__env_loader__custom_converter(monkeypatch: pytest.MonkeyPatch):
     assert MyEnv().INT_VALS == [9, 3, 6]
 
 
-def test__env_loader__generic_must_be_precise_type(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("INT_VALS", "9, 3, 6")
+def test__env_loader__converter_with_missing_env():
+    def char_list(value: str) -> list[str]:
+        return list(value)
 
-    def get_int_list(value: str) -> list[int]:
-        return [int(x) for x in value.split(",")]
+    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(char_list)]):
+        CHAR_LIST: list[str]
 
-    class MyEnv(
-        typedenv.EnvLoader, extra_converters=[typedenv.Converter(get_int_list)]
-    ):
-        INT_VALS: list[str]
-
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         MyEnv()
+
+
+def test__env_loader__converter_with_default():
+    def char_list(value: str) -> list[str]:
+        return list(value)
+
+    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(char_list)]):
+        CHAR_LIST: list[str] = ["d", "e", "f"]
+
+    assert MyEnv().CHAR_LIST == ["d", "e", "f"]
 
 
 def test__env_loader__mixed_conversion(monkeypatch: pytest.MonkeyPatch):

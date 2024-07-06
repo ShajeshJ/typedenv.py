@@ -1,5 +1,7 @@
-import pytest
 import typing
+
+import pytest
+
 import typedenv.annotations
 
 

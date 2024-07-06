@@ -1,11 +1,10 @@
-from collections.abc import Sequence
 import os
 import typing
+from collections.abc import Sequence
 
 from typedenv._internals import _MISSING
 from typedenv.annotations import get_unioned_with_none
 from typedenv.converters import Converter, ConverterDict, cast_to_bool
-
 
 _T = typing.TypeVar("_T", bound="EnvLoader")
 _SINGLETONS: dict[type, typing.Any] = {}
@@ -73,13 +72,8 @@ class EnvLoader:
                 raise ValueError(f"Missing environment variable: {env_name}")
             elif isinstance(value, str):
                 value = self.__converters[cast_type](value)
-            elif value is None:
-                if not is_nullable:
-                    raise ValueError(f"Cannot set {env_name} to None")
-                else:
-                    pass  # no-op; env can be set to None
-            elif not isinstance(value, cast_type):
-                raise ValueError(f"Could not coerce {env_name} to {cast_type}")
+            elif value is None and not is_nullable:
+                raise ValueError(f"Cannot set {env_name} to None")
 
             setattr(self, env_name, value)
             self.__env_keys.add(env_name)

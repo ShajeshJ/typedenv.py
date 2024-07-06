@@ -3,7 +3,7 @@
 [![Python 3.12](https://github.com/ShajeshJ/typedenv/actions/workflows/python-3.12.yml/badge.svg?branch=main)](https://github.com/ShajeshJ/typedenv/actions/workflows/python-3.12.yml)
 
 # typedenv
-Load environment variables with strict types
+Load environment variables with class type hints
 
 ## 🚀 Quickstart
 Given you have the environment variables `LOG_LEVEL=INFO` and `POOL_SIZE=100` set:
