@@ -23,9 +23,24 @@ jobs:
       # IMPORTANT: IF RUNNING PYTEST IS NO LONGER THE 3RD STEP, UPDATE THE LINK BELOW TO MATCH THE RIGHT STEP NUMBER
       - name: Run pytest
         run: poetry run pytest --no-header --tb=no --color=yes
+      - name: Get Current Job ID
+        id: current-job
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const { data } = await github.rest.actions.listJobsForWorkflowRunAttempt({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.run_id }},
+              attempt: context.runAttempt
+            });
+            console.log(context.runAttempt, context.runNumber, context.runId);
+            console.log(data);
+            return "";
       - name: Output Test Summary
         run: |
           echo "### Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Python Version: **${{ steps.setup-python.outputs.python-version }}**" >> $GITHUB_STEP_SUMMARY
           echo "- Env from Cache: **${{ steps.setup-python.outputs.cache-hit }}**" >> $GITHUB_STEP_SUMMARY
-          echo "\n**[Test Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ job.container.id }}#step:4:1)**" >> $GITHUB_STEP_SUMMARY
+          echo "\n**[Test Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/#step:4:1)**" >> $GITHUB_STEP_SUMMARY
