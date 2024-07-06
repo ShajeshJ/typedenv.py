@@ -28,4 +28,4 @@ jobs:
           echo "### Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Python Version: **${{ steps.setup-python.outputs.python-version }}**" >> $GITHUB_STEP_SUMMARY
           echo "- Env from Cache: **${{ steps.setup-python.outputs.cache-hit }}**" >> $GITHUB_STEP_SUMMARY
-          echo "**[Test Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/{{ github.job }}#step:4:1)**" >> $GITHUB_STEP_SUMMARY
+          echo "**[Test Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}#step:4:1)**" >> $GITHUB_STEP_SUMMARY
