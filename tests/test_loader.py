@@ -1,3 +1,4 @@
+import json
 import typedenv
 import pytest
 import typing
@@ -290,3 +291,59 @@ def test__env_loader__inheritance__mutable_child(monkeypatch: pytest.MonkeyPatch
     assert base.BASE_KEY == "old base value"
     assert child.BASE_KEY == "new base value"
     assert child.CHILD_KEY == "new child value"
+
+
+def test__env_loader__custom_converter(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("INT_VALS", "9, 3, 6")
+
+    def get_int_list(value: str) -> list[int]:
+        return [int(x) for x in value.split(",")]
+
+    class MyEnv(
+        typedenv.EnvLoader, extra_converters=[typedenv.Converter(get_int_list)]
+    ):
+        INT_VALS: list[int]
+
+    assert MyEnv().INT_VALS == [9, 3, 6]
+
+
+def test__env_loader__generic_must_be_precise_type(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("INT_VALS", "9, 3, 6")
+
+    def get_int_list(value: str) -> list[int]:
+        return [int(x) for x in value.split(",")]
+
+    class MyEnv(
+        typedenv.EnvLoader, extra_converters=[typedenv.Converter(get_int_list)]
+    ):
+        INT_VALS: list[str]
+
+    with pytest.raises(TypeError):
+        MyEnv()
+
+
+def test__env_loader__mixed_conversion(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("BASIC_INT", "42")
+    monkeypatch.setenv("KEBAB_STR", "default-string-converter-should-be-overridden")
+    monkeypatch.setenv("JSON_ENV", '{"config1": "value1", "config2": "value2"}')
+
+    def json_dict_from_str(value: str) -> dict[str, str]:
+        return json.loads(value)
+
+    def kebab_to_whitespace(value: str) -> str:
+        return value.replace("-", " ")
+
+    class MyEnv(
+        typedenv.EnvLoader,
+        extra_converters=[
+            typedenv.Converter(json_dict_from_str),
+            typedenv.Converter(kebab_to_whitespace),
+        ],
+    ):
+        BASIC_INT: int
+        KEBAB_STR: str
+        JSON_ENV: dict[str, str]
+
+    assert MyEnv().BASIC_INT == 42
+    assert MyEnv().KEBAB_STR == "default string converter should be overridden"
+    assert MyEnv().JSON_ENV == {"config1": "value1", "config2": "value2"}

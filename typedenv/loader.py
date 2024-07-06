@@ -1,9 +1,10 @@
+from collections.abc import Sequence
 import os
 import typing
 
 from typedenv._internals import _MISSING
 from typedenv.annotations import get_unioned_with_none
-from typedenv.converters import ConverterDict, cast_to_bool
+from typedenv.converters import Converter, ConverterDict, cast_to_bool
 
 
 _T = typing.TypeVar("_T", bound="EnvLoader")
@@ -15,7 +16,12 @@ class EnvLoader:
     __env_keys: typing.ClassVar[set[str]]
     __converters: typing.ClassVar[ConverterDict]
 
-    def __init_subclass__(cls, frozen: bool = True, **kwargs) -> None:
+    def __init_subclass__(
+        cls,
+        frozen: bool = True,
+        extra_converters: Sequence[Converter] | None = None,
+        **kwargs,
+    ) -> None:
         cls.__frozen = frozen
         cls.__env_keys = set()
         cls.__converters = ConverterDict()
@@ -24,6 +30,10 @@ class EnvLoader:
         cls.__converters[int] = int
         cls.__converters[float] = float
         cls.__converters[bool] = cast_to_bool
+
+        if extra_converters is not None:
+            for converter in extra_converters:
+                cls.__converters[converter.type_] = converter.convert
 
         return super().__init_subclass__(**kwargs)
 

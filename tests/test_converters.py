@@ -51,5 +51,27 @@ def test__converter_dict__complex():
     converters[list[str]] = complex_converter
     converters[str] = str
 
-    c = converters[list[str]]
-    assert typing.get_type_hints(c) == {"value": str, "return": list[str]}
+    assert converters[list[str]] == complex_converter
+
+
+def test__converter__non_callable():
+    with pytest.raises(ValueError):
+        typedenv.Converter("not a callable function")  # type: ignore
+
+
+def test__converter__no_return_type():
+    def test_converter(value: str):
+        return value
+
+    with pytest.raises(ValueError):
+        typedenv.Converter(test_converter)
+
+
+def test__converter__valid():
+    def test_converter(value: str) -> list[int]:
+        return [int(x) for x in value.split(",")]
+
+    converter = typedenv.Converter(test_converter)
+
+    assert converter.type_ == list[int]
+    assert converter.convert("1,2,3") == [1, 2, 3]
