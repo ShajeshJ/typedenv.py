@@ -33,7 +33,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.runId,
-              attempt: context.runAttempt || 1,
+              attempt_number: context.runAttempt || 1,
             });
             console.log(data);
             return "";
