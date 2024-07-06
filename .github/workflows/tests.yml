@@ -29,13 +29,13 @@ jobs:
         with:
           result-encoding: string
           script: |
+            console.log(context.runAttempt, context.runNumber, context.runId);
             const { data } = await github.rest.actions.listJobsForWorkflowRunAttempt({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: ${{ github.run_id }},
               attempt: context.runAttempt
             });
-            console.log(context.runAttempt, context.runNumber, context.runId);
             console.log(data);
             return "";
       - name: Output Test Summary
