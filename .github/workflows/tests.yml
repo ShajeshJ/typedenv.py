@@ -20,12 +20,12 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
           poetry-args: "--with test"
-      - name: Show Test Configuration
+      # IMPORTANT: IF RUNNING PYTEST IS NO LONGER THE 3RD STEP, UPDATE THE LINK BELOW TO MATCH THE RIGHT STEP NUMBER
+      - name: Run pytest
+        run: poetry run pytest --no-header --tb=no --color=yes
+      - name: Output Test Summary
         run: |
-          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "| Python | ${{ steps.setup-python.outputs.python-version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| Env from Cache | ${{ steps.setup-python.outputs.cache-hit }} |" >> $GITHUB_STEP_SUMMARY
-          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-      - name: Test with pytest
-        run: poetry run pytest --no-header --tb=no >> $GITHUB_STEP_SUMMARY
+          echo "### Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Python Version: **${{ steps.setup-python.outputs.python-version }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Env from Cache: **${{ steps.setup-python.outputs.cache-hit }}**" >> $GITHUB_STEP_SUMMARY
+          echo "**[Test Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/{{ github.job }}#step:4:1)**" >> $GITHUB_STEP_SUMMARY
