@@ -27,7 +27,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           result-encoding: string
-          github-token: ${{ secrets.PAT_TOKEN }}
           script: |
             const { data } = await github.rest.actions.listJobsForWorkflowRunAttempt({
               owner: context.repo.owner,
