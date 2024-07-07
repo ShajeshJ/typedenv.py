@@ -3,7 +3,7 @@ import typing
 from collections.abc import Sequence
 
 from typedenv._internals import _MISSING
-from typedenv.annotations import get_unioned_with_none
+from typedenv.annotations import get_annotated_args, get_unioned_with_none
 from typedenv.converters import Converter, ConverterDict, cast_to_bool
 
 _T = typing.TypeVar("_T", bound="EnvLoader")
@@ -56,22 +56,39 @@ class EnvLoader:
                 continue
 
             default: typing.Literal[_MISSING] | str | typing.Any | None = _MISSING
+            bespoke_cvtr: Converter | None = None
+
+            annotated_args = get_annotated_args(cast_type)
+            if annotated_args is not None:
+                cast_type, *metadata_args = annotated_args
+                for metadata in metadata_args:
+                    if isinstance(metadata, Converter):
+                        bespoke_cvtr = metadata
+                        break
 
             unioned_type = get_unioned_with_none(cast_type)
             if is_nullable := unioned_type is not None:
                 default = None
                 cast_type = unioned_type
 
-            if cast_type not in self.__converters:
+            if bespoke_cvtr and cast_type != bespoke_cvtr.type_:
+                raise TypeError(
+                    f"expected Converter for {env_name} to return {cast_type}; got {bespoke_cvtr.type_} instead"
+                )
+
+            if bespoke_cvtr is None and cast_type not in self.__converters:
                 raise TypeError(f"Unsupported type: {cast_type}")
 
+            convert = (
+                bespoke_cvtr.convert if bespoke_cvtr else self.__converters[cast_type]
+            )
             default = getattr(self, env_name, default)
             value = os.getenv(env_name, default)
 
             if value is _MISSING:
                 raise ValueError(f"Missing environment variable: {env_name}")
-            elif isinstance(value, str):
-                value = self.__converters[cast_type](value)
+            elif isinstance(value, str) and value != default:
+                value = convert(value)
             elif value is None and not is_nullable:
                 raise ValueError(f"Cannot set {env_name} to None")
 
