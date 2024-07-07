@@ -84,3 +84,25 @@ def test__get_unioned_with_none__multiple_types_with_none(
 )
 def test__get_unioned_with_none__one_type_with_none(annotations: typing.Any):
     assert typedenv.annotations.get_unioned_with_none(annotations) == str
+
+
+def test__get_annotations__not_annotated():
+    assert typedenv.annotations.get_annotated_args(str) is None
+    assert typedenv.annotations.get_annotated_args(typing.Optional[str]) is None
+    assert typedenv.annotations.get_annotated_args(typing.Union[str, int]) is None
+
+
+def test__get_annotations__annotated():
+    args = typedenv.annotations.get_annotated_args(typing.Annotated[str, int])
+    assert args == (str, int)
+
+
+def test__get_annotations_complex_annotations():
+    class Metadata:
+        def __eq__(self, other):
+            return isinstance(other, Metadata)
+
+    args = typedenv.annotations.get_annotated_args(
+        typing.Annotated[str, "some random metadata", Metadata()]
+    )
+    assert args == (str, "some random metadata", Metadata())

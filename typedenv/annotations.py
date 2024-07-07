@@ -26,3 +26,15 @@ def get_unioned_with_none(t: typing.Any) -> typing.Any:
             return x
         case _:
             return None
+
+
+def get_annotated_args(t: typing.Any) -> tuple[typing.Any, ...] | None:
+    """Parses a typing.Annotated type and returns the inner type and its args.
+
+    If the given type is not an Annotated type, None is returned instead.
+    """
+    origin_type = typing.get_origin(t)
+    if origin_type is not typing.Annotated:
+        return None
+
+    return typing.get_args(t)
