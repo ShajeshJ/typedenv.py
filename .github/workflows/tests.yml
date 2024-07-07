@@ -47,4 +47,5 @@ jobs:
           echo "### Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Python Version: **${{ steps.setup-python.outputs.python-version }}**" >> $GITHUB_STEP_SUMMARY
           echo "- Env from Cache: **${{ steps.setup-python.outputs.cache-hit }}**" >> $GITHUB_STEP_SUMMARY
-          echo "\n**[Test Results](${{ steps.results-link.outputs.result }})**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**[Test Results](${{ steps.results-link.outputs.result }})**" >> $GITHUB_STEP_SUMMARY
