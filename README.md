@@ -6,6 +6,8 @@
 Load environment variables with class type hints
 
 ## 🚀 Quickstart
+The library supports type hints for `str`, `int`, `float`, and `bool` out of the box.
+
 ```python
 import typedenv
 
@@ -13,14 +15,20 @@ import typedenv
 # export LOG_LEVEL=INFO
 # export POOL_SIZE=100
 # export DEBUG=1
+# export SCALING=1.5
 
 class EnvConfig(typedenv.EnvLoader):
     LOG_LEVEL: str
     POOL_SIZE: int
     DEBUG: bool
+    SCALING: float
 
 Env = EnvConfig()
 assert Env.LOG_LEVEL == "INFO"
 assert Env.POOL_SIZE == 100
 assert Env.DEBUG == True
+assert Env.SCALING == 1.5
 ```
+
+## 📚 Documentation
+TODO
