@@ -301,6 +301,28 @@ def test__env_loader__custom_converter(monkeypatch: pytest.MonkeyPatch):
     assert MyEnv().INT_VALS == [9, 3, 6]
 
 
+def test__env_loader__multi_union_converter(monkeypatch: pytest.MonkeyPatch):
+    def str_or_int(value: str) -> typing.Union[str, int]:
+        return int(value) if value.isdigit() else value
+
+    monkeypatch.setenv("MY_KEY", "42")
+
+    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(str_or_int)]):
+        MY_KEY: int | str
+
+    assert MyEnv().MY_KEY == 42
+
+
+def test__env_loader__multi_union_converter_with_none():
+    def str_or_int(value: str) -> typing.Union[str, int]:
+        return int(value) if value.isdigit() else value
+
+    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(str_or_int)]):
+        MY_KEY: int | None | str
+
+    assert MyEnv().MY_KEY is None
+
+
 def test__env_loader__converter_with_missing_env():
     def char_list(value: str) -> list[str]:
         return list(value)

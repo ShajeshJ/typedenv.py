@@ -2,30 +2,39 @@ import types
 import typing
 
 
-def is_union_type(t: typing.Any) -> bool:
-    """Check if the given type annotation is a Union type."""
-    origin_type = typing.get_origin(t)
-    return origin_type is typing.Union or origin_type is types.UnionType
-
-
 def get_unioned_with_none(t: typing.Any) -> typing.Any:
-    """Parses an annotation that Unions 1 type with None and returns that type.
+    """Parses an annotation that Unions a type with None and returns that type.
+    If multiple types are Unioned with None, they are combined into a single Union.
 
     Example:
     - typing.Union[int, None] -> int
     - typing.Optional[int] -> int
     - int | None -> int
+    - typing.Union[int, str, None] -> typing.Union[int, str]
+    - typing.Optional[int | str] -> typing.Union[int, str]
+    - int | str | None -> int | str
 
-    If the given type is not a Union with None, None is returned instead.
+    If the given type is not a Union with None, the function returns None instead.
     """
-    if not is_union_type(t):
+    origin_type = typing.get_origin(t)
+
+    if origin_type is not typing.Union and origin_type is not types.UnionType:
         return None
 
-    match typing.get_args(t):
-        case (types.NoneType, x) | (x, types.NoneType):
-            return x
-        case _:
-            return None
+    args = typing.get_args(t)
+    args_without_none = tuple(arg for arg in args if arg is not types.NoneType)
+
+    if len(args_without_none) == len(args) or len(args_without_none) == 0:
+        return None
+
+    if origin_type is typing.Union:
+        return typing.Union[args_without_none]
+
+    repacked_union = args_without_none[0]
+    for arg in args_without_none[1:]:
+        repacked_union = repacked_union | arg
+
+    return repacked_union
 
 
 def get_annotated_args(t: typing.Any) -> tuple[typing.Any, ...] | None:

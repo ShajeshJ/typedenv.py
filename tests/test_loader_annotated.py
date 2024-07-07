@@ -102,7 +102,6 @@ def test__env_loader__union_with_none__annotated(monkeypatch: pytest.MonkeyPatch
     assert MyEnv().MY_KEY == "stringfoo"
 
 
-@pytest.mark.skip(reason="TODO: Need to implement support for this behaviour")
 def test__env_loader__multi_union_with_none__annotated(monkeypatch: pytest.MonkeyPatch):
     def str_or_int(value: str) -> str | int:
         return int(value) if value.isdigit() else value
@@ -110,9 +109,7 @@ def test__env_loader__multi_union_with_none__annotated(monkeypatch: pytest.Monke
     monkeypatch.setenv("MY_KEY", "string")
 
     class MyEnv(typedenv.EnvLoader):
-        MY_KEY: typing.Annotated[
-            str | int | None, typedenv.Converter(str_or_int) | None
-        ]
+        MY_KEY: typing.Annotated[str | int | None, typedenv.Converter(str_or_int)]
 
     assert MyEnv().MY_KEY == "string"
 
