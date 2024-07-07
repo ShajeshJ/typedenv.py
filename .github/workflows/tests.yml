@@ -26,9 +26,10 @@ jobs:
       - name: Get Current Job ID
         id: current-job
         uses: actions/github-script@v7
+        # TODO: get rid of the PAT_TOKEN once repo is public
         with:
-          github-token: ${{ secrets.PAT_TOKEN }}
           result-encoding: string
+          github-token: ${{ secrets.PAT_TOKEN }}
           script: |
             const { data } = await github.rest.actions.listJobsForWorkflowRunAttempt({
               owner: context.repo.owner,
