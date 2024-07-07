@@ -27,6 +27,7 @@ jobs:
         id: current-job
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.PAT_TOKEN }}
           result-encoding: string
           script: |
             const { data } = await github.rest.actions.listJobsForWorkflowRunAttempt({
