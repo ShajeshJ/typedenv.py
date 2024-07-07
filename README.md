@@ -6,15 +6,21 @@
 Load environment variables with class type hints
 
 ## 🚀 Quickstart
-Given you have the environment variables `LOG_LEVEL=INFO` and `POOL_SIZE=100` set:
 ```python
 import typedenv
+
+# Assuming the given environment variables
+# export LOG_LEVEL=INFO
+# export POOL_SIZE=100
+# export DEBUG=1
 
 class EnvConfig(typedenv.EnvLoader):
     LOG_LEVEL: str
     POOL_SIZE: int
+    DEBUG: bool
 
 Env = EnvConfig()
 assert Env.LOG_LEVEL == "INFO"
 assert Env.POOL_SIZE == 100
+assert Env.DEBUG == True
 ```
