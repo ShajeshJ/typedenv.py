@@ -20,13 +20,11 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
           poetry-args: "--with test"
-      # IMPORTANT: IF RUNNING PYTEST IS NO LONGER THE 3RD STEP, UPDATE THE LINK BELOW TO MATCH THE RIGHT STEP NUMBER
       - name: Run pytest
         run: poetry run pytest --no-header --tb=no --color=yes
-      - name: Get Current Job ID
-        id: current-job
+      - name: Get Test Results Link
+        id: results-link
         uses: actions/github-script@v7
-        # TODO: get rid of the PAT_TOKEN once repo is public
         with:
           result-encoding: string
           github-token: ${{ secrets.PAT_TOKEN }}
@@ -37,11 +35,17 @@ jobs:
               run_id: context.runId,
               attempt_number: context.runAttempt || 1,
             });
-            console.log(data);
-            return "";
+            const job = data.jobs[0];
+            const step = job.steps.findIndex((step) => step.name === "Run pytest") + 1;
+
+            if (step > 0) {
+              return "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/" + `${job.id}#step:${step}:1`;
+            } else {
+              return "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/" + job.id;
+            }
       - name: Output Test Summary
         run: |
           echo "### Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Python Version: **${{ steps.setup-python.outputs.python-version }}**" >> $GITHUB_STEP_SUMMARY
           echo "- Env from Cache: **${{ steps.setup-python.outputs.cache-hit }}**" >> $GITHUB_STEP_SUMMARY
-          echo "\n**[Test Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/#step:4:1)**" >> $GITHUB_STEP_SUMMARY
+          echo "\n**[Test Results](${{ steps.results-link.outputs.result }})**" >> $GITHUB_STEP_SUMMARY
