@@ -130,10 +130,25 @@ def test__env_loader__ignore_lower_case(monkeypatch: pytest.MonkeyPatch):
     assert MyEnv().my_key == 12
 
 
+def test__env_loader__non_singleton_default(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MY_KEY", "starting string")
+
+    class MyEnv(typedenv.EnvLoader):
+        MY_KEY: str
+
+    env1 = MyEnv()
+    monkeypatch.setenv("MY_KEY", "env keys will reload by default")
+    env2 = MyEnv()
+
+    assert env1 is not env2
+    assert env1.MY_KEY == "starting string"
+    assert env2.MY_KEY == "env keys will reload by default"
+
+
 def test__env_loader__creates_singleton(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MY_STR", "starting string")
 
-    class MyEnv(typedenv.EnvLoader):
+    class MyEnv(typedenv.EnvLoader, singleton=True):
         MY_STR: str
 
     env1 = MyEnv()

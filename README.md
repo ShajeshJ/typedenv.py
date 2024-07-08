@@ -32,3 +32,19 @@ assert Env.SCALING == 1.5
 
 ## 📚 Documentation
 TODO
+
+### Missing env keys / union with None
+
+### set default fallback value
+
+### custom converters
+
+### annotated
+
+### mutability
+
+### singleton
+
+### Inheritance
+
+### lowercase variables

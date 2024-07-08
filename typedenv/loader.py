@@ -12,17 +12,19 @@ _SINGLETONS: dict[type, typing.Any] = {}
 
 class EnvLoader:
     __frozen: typing.ClassVar[bool]
-    __env_keys: typing.ClassVar[set[str]]
+    __singleton: typing.ClassVar[bool]
     __converters: typing.ClassVar[ConverterDict]
+    _env_keys: set[str]
 
     def __init_subclass__(
         cls,
         frozen: bool = True,
+        singleton: bool = False,
         extra_converters: Sequence[Converter] | None = None,
         **kwargs,
     ) -> None:
         cls.__frozen = frozen
-        cls.__env_keys = set()
+        cls.__singleton = singleton
         cls.__converters = ConverterDict()
 
         cls.__converters[str] = str
@@ -38,13 +40,15 @@ class EnvLoader:
 
     def __new__(cls: type[_T], *args, **kwargs) -> _T:
         global _SINGLETONS
-
-        if cls in _SINGLETONS:
+        if cls.__singleton and cls in _SINGLETONS:
             return _SINGLETONS[cls]
 
         instance = super().__new__(cls, *args, **kwargs)
+        instance._env_keys = set()
         instance.__load_env__()
-        _SINGLETONS[cls] = instance
+
+        if cls.__singleton:
+            _SINGLETONS[cls] = instance
 
         return instance
 
@@ -93,10 +97,13 @@ class EnvLoader:
                 raise ValueError(f"Cannot set {env_name} to None")
 
             setattr(self, env_name, value)
-            self.__env_keys.add(env_name)
+            self._env_keys.add(env_name)
 
     def __setattr__(self, name: str, value: typing.Any) -> None:
-        if self.__frozen and name in self.__env_keys:
+        if name == f"_env_keys" and getattr(self, "_env_keys", None) is None:
+            return object.__setattr__(self, name, value)
+
+        if self.__frozen and name in self._env_keys:
             raise AttributeError(f"{name} is frozen and cannot be modified")
 
         return super().__setattr__(name, value)
