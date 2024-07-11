@@ -12,10 +12,10 @@ The library supports type hints for `str`, `int`, `float`, and `bool` out of the
 import typedenv
 
 # Assuming the given environment variables
-# export LOG_LEVEL=INFO
-# export POOL_SIZE=100
-# export DEBUG=1
-# export SCALING=1.5
+# $ export LOG_LEVEL=INFO
+# $ export POOL_SIZE=100
+# $ export DEBUG=1
+# $ export SCALING=1.5
 
 class EnvConfig(typedenv.EnvLoader):
     LOG_LEVEL: str
@@ -31,11 +31,22 @@ assert Env.SCALING == 1.5
 ```
 
 ## 📚 Documentation
-TODO
+Environment variables will be loaded into the instance of your class
+on initialization. The name of the class attributes will be used
+to look up the corresponding environment variables. Only attributes
+that are capitalized and are type-hinted will be loaded.
 
-### Missing env keys / union with None
+### Optional Keys
+By default, a ValueError is raised if the an environment key matching
+your class attribute is not found. To make keys optional, you can either
+give them default values, use `typing.Optional`, or union your type with `None`.
 
-### set default fallback value
+```python
+class EnvConfig(typedenv.EnvLoader):
+    DEBUG: bool = True
+    API_KEY: str | None
+    MAX_SIZE: typing.Optional[int]
+```
 
 ### custom converters
 
