@@ -302,6 +302,18 @@ def test__env_loader__inheritance__mutable_child(monkeypatch: pytest.MonkeyPatch
     assert child.CHILD_KEY == "new child value"
 
 
+def test__env_loader__inheritance__narrowed_type(monkeypatch: pytest.MonkeyPatch):
+    class Base(typedenv.EnvLoader):
+        BASE_KEY: str | None
+
+    class Child(Base):
+        BASE_KEY: str
+
+    assert Base().BASE_KEY is None
+    with pytest.raises(ValueError):
+        Child()
+
+
 def test__env_loader__custom_converter(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("INT_VALS", "9, 3, 6")
 
