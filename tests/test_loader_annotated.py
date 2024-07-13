@@ -161,7 +161,7 @@ def test__env_loader__custom_converter__and_annotated(monkeypatch: pytest.Monkey
     def uppercase(value: str) -> str:
         return value.upper()
 
-    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(lowercase)]):
+    class MyEnv(typedenv.EnvLoader, converters=[typedenv.Converter(lowercase)]):
         UPPERCASE: typing.Annotated[str, typedenv.Converter(uppercase)]
         LOWERCASE: str
 

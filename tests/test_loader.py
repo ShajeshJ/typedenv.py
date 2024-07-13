@@ -308,9 +308,7 @@ def test__env_loader__custom_converter(monkeypatch: pytest.MonkeyPatch):
     def get_int_list(value: str) -> list[int]:
         return [int(x) for x in value.split(",")]
 
-    class MyEnv(
-        typedenv.EnvLoader, extra_converters=[typedenv.Converter(get_int_list)]
-    ):
+    class MyEnv(typedenv.EnvLoader, converters=[typedenv.Converter(get_int_list)]):
         INT_VALS: list[int]
 
     assert MyEnv().INT_VALS == [9, 3, 6]
@@ -322,7 +320,7 @@ def test__env_loader__multi_union_converter(monkeypatch: pytest.MonkeyPatch):
 
     monkeypatch.setenv("MY_KEY", "42")
 
-    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(str_or_int)]):
+    class MyEnv(typedenv.EnvLoader, converters=[typedenv.Converter(str_or_int)]):
         MY_KEY: int | str
 
     assert MyEnv().MY_KEY == 42
@@ -332,7 +330,7 @@ def test__env_loader__multi_union_converter_with_none():
     def str_or_int(value: str) -> typing.Union[str, int]:
         return int(value) if value.isdigit() else value
 
-    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(str_or_int)]):
+    class MyEnv(typedenv.EnvLoader, converters=[typedenv.Converter(str_or_int)]):
         MY_KEY: int | None | str
 
     assert MyEnv().MY_KEY is None
@@ -342,7 +340,7 @@ def test__env_loader__converter_with_missing_env():
     def char_list(value: str) -> list[str]:
         return list(value)
 
-    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(char_list)]):
+    class MyEnv(typedenv.EnvLoader, converters=[typedenv.Converter(char_list)]):
         CHAR_LIST: list[str]
 
     with pytest.raises(ValueError):
@@ -353,7 +351,7 @@ def test__env_loader__converter_with_default():
     def char_list(value: str) -> list[str]:
         return list(value)
 
-    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(char_list)]):
+    class MyEnv(typedenv.EnvLoader, converters=[typedenv.Converter(char_list)]):
         CHAR_LIST: list[str] = ["d", "e", "f"]
 
     assert MyEnv().CHAR_LIST == ["d", "e", "f"]
@@ -372,7 +370,7 @@ def test__env_loader__mixed_conversion(monkeypatch: pytest.MonkeyPatch):
 
     class MyEnv(
         typedenv.EnvLoader,
-        extra_converters=[
+        converters=[
             typedenv.Converter(json_dict_from_str),
             typedenv.Converter(kebab_to_whitespace),
         ],

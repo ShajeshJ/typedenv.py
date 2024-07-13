@@ -20,7 +20,7 @@ class EnvLoader:
         cls,
         frozen: bool = True,
         singleton: bool = False,
-        extra_converters: Sequence[Converter] | None = None,
+        converters: Sequence[Converter] | None = None,
         **kwargs,
     ) -> None:
         cls.__frozen = frozen
@@ -32,8 +32,8 @@ class EnvLoader:
         cls.__converters[float] = float
         cls.__converters[bool] = cast_to_bool
 
-        if extra_converters is not None:
-            for converter in extra_converters:
+        if converters is not None:
+            for converter in converters:
                 cls.__converters[converter.type_] = converter.convert
 
         return super().__init_subclass__(**kwargs)
