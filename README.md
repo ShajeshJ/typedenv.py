@@ -48,16 +48,49 @@ class EnvConfig(typedenv.EnvLoader):
     MAX_SIZE: typing.Optional[int]
 ```
 
-### custom converters
+### Supporting Additional Types
+Additional support for types can be added by providing a converting function
+through `typedenv.Converter`. These can either passed in as a class option or
+through `typing.Annotated` for a specific key.
 
-### validation / overriding converters
+```python
+def int_list(value: str) -> list[str]:
+    return value.split(",")
 
-### annotated
+def to_path(value: str) -> Path:
+    return Path(value)
 
-### mutability
+class EnvConfig(typedenv.EnvLoader, converters=[typedenv.Converter(str_list)]):
+    CLUSTERS: list[str]
+    CONFIG_FILE: typing.Annotated[Path, typedenv.Converter(to_path)]
+```
+
+### Validation and Transformation
+In addition to supporting new types, `typedenv.Converter` can also be used to
+validate and transform already supported types.
+
+```python
+def validate_str(value: str) -> str:
+    if not value.isalnum():
+        raise ValueError("only letters/numbers allowed")
+    return value.upper()
+
+class EnvConfig(typedenv.EnvLoader, converters=[typedenv.Converter(validate_str)]):
+    API_KEY: str
+```
+
+### Mutability
+By default, attributes loaded with an environment variable will be immutable.
+This can be disabled through the `frozen` option.
+
+```python
+class EnvConfig(typedenv.EnvLoader, frozen=False):
+    TIMEOUT: int
+
+config = EnvConfig()
+config.TIMEOUT = 30
+```
 
 ### singleton
 
 ### Inheritance
-
-### lowercase variables
