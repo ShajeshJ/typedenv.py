@@ -23,11 +23,11 @@ class EnvConfig(typedenv.EnvLoader):
     DEBUG: bool
     SCALING: float
 
-Env = EnvConfig()
-assert Env.LOG_LEVEL == "INFO"
-assert Env.POOL_SIZE == 100
-assert Env.DEBUG == True
-assert Env.SCALING == 1.5
+env = EnvConfig()
+assert env.LOG_LEVEL == "INFO"
+assert env.POOL_SIZE == 100
+assert env.DEBUG == True
+assert env.SCALING == 1.5
 ```
 
 ## 📚 Documentation
@@ -37,7 +37,7 @@ to look up the corresponding environment variables. Only attributes
 that are capitalized and are type-hinted will be loaded.
 
 ### Optional Keys
-By default, a ValueError is raised if the an environment key matching
+By default, a ValueError is raised if an environment key matching
 your class attribute is not found. To make keys optional, you can either
 give them default values, use `typing.Optional`, or union your type with `None`.
 
@@ -54,7 +54,7 @@ through `typedenv.Converter`. These can either passed in as a class option or
 through `typing.Annotated` for a specific key.
 
 ```python
-def int_list(value: str) -> list[str]:
+def str_list(value: str) -> list[str]:
     return value.split(",")
 
 def to_path(value: str) -> Path:
