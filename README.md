@@ -91,6 +91,32 @@ config = EnvConfig()
 config.TIMEOUT = 30
 ```
 
-### singleton
+### One-time Loading
+By default, environment variables will be loaded into the class every time
+a new instance is created. You can use the `singleton` option to convert
+your class into a Singleton and ensure it will only load from environment
+variables on the first initialization.
 
-### Inheritance
+```python
+class EnvConfig(typedenv.EnvLoader, singleton=True):
+    LOG_LEVEL: str
+
+assert EnvConfig() is EnvConfig()
+```
+
+### Subclass Overriding
+Your `EnvLoader` class can be further subclassed, which can be useful for
+type narrowing keys required by certain modules in your application, or for
+adding default values.
+
+```python
+class EnvConfig(typedenv.EnvLoader):
+    LOG_LEVEL: str
+    GOOGLE_API_KEY: str | None
+
+class GoogleRequiredConfig(EnvConfig):
+    GOOGLE_API_KEY: str
+
+class TestConfig(EnvConfig):
+    GOOGLE_API_KEY = "fake-google-key"
+```
