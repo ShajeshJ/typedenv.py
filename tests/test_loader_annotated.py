@@ -149,3 +149,21 @@ def test__env_loader__ignore_default__annotated(monkeypatch: pytest.MonkeyPatch)
         MY_KEY: typing.Annotated[int, typedenv.Converter(int_add_10)] = 1
 
     assert MyEnv().MY_KEY == 22
+
+
+def test__env_loader__custom_converter__and_annotated(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("UPPERCASE", "uppercase")
+    monkeypatch.setenv("LOWERCASE", "LOWERCASE")
+
+    def lowercase(value: str) -> str:
+        return value.lower()
+
+    def uppercase(value: str) -> str:
+        return value.upper()
+
+    class MyEnv(typedenv.EnvLoader, extra_converters=[typedenv.Converter(lowercase)]):
+        UPPERCASE: typing.Annotated[str, typedenv.Converter(uppercase)]
+        LOWERCASE: str
+
+    assert MyEnv().UPPERCASE == "UPPERCASE"
+    assert MyEnv().LOWERCASE == "lowercase"
