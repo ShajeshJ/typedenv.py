@@ -112,7 +112,7 @@ def test__env_loader__fallback_to_default(type_hint: typing.Any, default: typing
     assert MyEnv().MY_KEY == default
 
 
-def test__env_loader__ignore_default(monkeypatch: pytest.MonkeyPatch):
+def test__env_loader__override_default(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MY_KEY", "12")
 
     class MyEnv(typedenv.EnvLoader):
@@ -121,13 +121,16 @@ def test__env_loader__ignore_default(monkeypatch: pytest.MonkeyPatch):
     assert MyEnv().MY_KEY == 12
 
 
-def test__env_loader__ignore_lower_case(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("my_key", "18")
+def test__env_loader__unloadable_keys(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("lowercase", "this value should not be loaded")
+    monkeypatch.setenv("NON_TYPE_HINTED", "this value should not be loaded")
 
     class MyEnv(typedenv.EnvLoader):
-        my_key: int = 12
+        lowercase: str = "lowercase original value"
+        NON_TYPE_HINTED = "non-type hinted value"
 
-    assert MyEnv().my_key == 12
+    assert MyEnv().lowercase == "lowercase original value"
+    assert MyEnv().NON_TYPE_HINTED == "non-type hinted value"
 
 
 def test__env_loader__non_singleton_default(monkeypatch: pytest.MonkeyPatch):
