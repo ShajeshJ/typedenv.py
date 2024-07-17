@@ -181,7 +181,7 @@ def test__env_loader__multiple_configs(monkeypatch: pytest.MonkeyPatch):
     assert bar.MY_INT == 14
 
 
-def test__env_loader__override_type():
+def test__env_loader__inheritance__override_type():
     class Base(typedenv.EnvLoader):
         SOME_KEY: str | None
 
@@ -193,7 +193,7 @@ def test__env_loader__override_type():
         Child()
 
 
-def test__env_loader__override_default():
+def test__env_loader__inheritance__override_default():
     class Base(typedenv.EnvLoader):
         SOME_KEY: int
 
