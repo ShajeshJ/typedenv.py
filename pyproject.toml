@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "typedenv.py"
-version = "1.0.0"
+version = "1.0.1"
 description = "Load environment variables with class type hints"
 authors = ["Shajesh Jegatheeswaran <shajesh.14@gmail.com>"]
 readme = "README.md"
